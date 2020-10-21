@@ -1,0 +1,62 @@
+//plugins {
+//    id "com.github.hierynomus.license" version "0.15.0"
+//}
+
+plugins {
+    id "com.github.hierynomus.license-report" version"0.15.0"
+}
+
+apply plugin: 'java'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.hierynomus:license-gradle-plugin:master-SNAPSHOT'
+    compile (
+           'javax.xml.bind:jaxb-api:2.3.1',
+            'com.amazonaws:aws-lambda-java-core:1.2.0',
+            'com.amazonaws:aws-lambda-java-events:2.2.7',
+            'com.mparticle:java-sdk:+',
+            'com.github.wnameless.json:json-flattener:0.8.1',
+           'com.amazonaws:aws-java-sdk-bom:1.11.726',
+           'com.amazonaws:aws-java-sdk-s3:+',
+           'com.amazonaws:aws-java-sdk-sqs:+'
+    )
+
+    // JUnit 5 dependencies for public test-writing API, and test engine, respectively.
+    testImplementation('org.junit.jupiter:junit-jupiter:5.5.1')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.5.1')
+
+    // Mockito for test mocking
+    testCompile('org.mockito:mockito-core:2.1.0')
+}
+
+test {
+    testLogging.showStandardStreams = true
+}
+
+//this task created a zip file that can
+//then be uploaded to AWS lambda
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+//create the zip file by executing: ./gradlew build
+build.dependsOn buildZip
+
+//license {
+//    exclude "**/*.java"
+//}
+downloadLicenses {
+    includeProjectDependencies = true
+    //dependencyConfiguration = 'compile'
+}

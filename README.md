@@ -1,41 +1,152 @@
 [![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
 
-# [Project Name] [build badges go here when available]
+# newrelic-mparticle-integration
 
->[Brief description - what is the project and value does it provide? How often should users expect to get releases? How is versioning set up? Where does this project want to go?]
+[AWS Lambda outbound mParticle integration to New Relic.](https://docs.mparticle.com/developers/partners/outbound-integrations/#aws-lambda-integrations)
+
+##  Architecture
+mParticle Firehose Listener -> LogStreamHandler (Lambda) -> SQS FIFO Queue -> MessageProcessor (SQS Listener) -> Insights (New Relic)
+
+NOTE:
+- The code must run in an AWS Region that supports SQS FIFO queues.
 
 ## Installation
 
-> [Include a step-by-step procedure on how to get your code installed. Be sure to include any third-party dependencies that need to be installed separately]
+### FIFO Queue
+Create an SQS FIFO queue
+
+### AWS Lambda
+1. Create a new Java Lambda
+#### Configuration
+1. Upload mParticleIntegration.jar
+1. Environment variables
+
+   | Key | Value |
+   | :--- | :-----: |
+   | EUInsightsEndpoint | insights-collector.eu01.nr-data.net |
+   | EventBucketName | <Your_bucket_name> |
+   | EventBucketPrefix | <Your_bucket_prefix> |
+   | EventBucketRegion | <AWS_Region_Lambda_is_running_in> |
+   | FifoQueue | <Your_FIFO_Queue_Name>.fifo |
+   | LogLevel | [<java.util.logging.Level>](https://docs.oracle.com/javase/7/docs/api/java/util/logging/Level.html) |
+   | SaveMessages | <true_or_false> |
+   | USInsightsEndpoint | insights-collector.newrelic.com |
+1. Tags
+   - none  required, as desired
+1. Basic settings
+
+   |      |      |
+   | :--- | :--- |
+   | Description | - |
+   | Runtime | <Java_runtime_version>
+   | HandlerInfo | com.nr.logging.mparticle.LogStreamHandler::handleRequest |
+   | Memory (MB) | 512 |
+   | Timeout | 3min0sec |
+
+1. Monitoring tools
+   - none required, as desired
+   
+1. VPC
+   - none required, as needed
+   
+1. File system
+   - none required, as needed
+   
+1. Concurrency
+   - Provisioned concurrency: 5 is a good starting point
+
+1. Asynchronous invocation
+
+   |      |      |
+   | :--- | :--- |
+   | Maximum age of event | 6h0min0sec |
+   | Retry attempts | 2 |
+   | Dead-letter queue service | none |
+  
+#### Permissions
+1. Execution role
+
+   At a minimum:
+   - AmazonSQSFullAccess
+   - AWSLambdaFullAccess
+   - AmazonS3FullAccess 
+   
+1. [Grant mParticle permission on the Lambda](https://docs.mparticle.com/developers/partners/firehose/#step-1-aws-lambda---grant-permissions)
+
+### AWS SQS Listener (Lambda)
+1. Create a new AWS Java Lambda
+
+#### Configuration
+1. Upload mParticleIntegration.jar
+1. Designer
+   - Add this Lambda as a trigger to the FIFO Queue created earlier
+1. Environment variables
+
+   | Key | Value |
+   | :--- | :-----: |
+   | EUInsightsEndpoint | insights-collector.eu01.nr-data.net |
+   | EventBucketName | <Your_bucket_name> |
+   | EventBucketPrefix | <Your_bucket_prefix> |
+   | EventBucketRegion | <AWS_Region_Lambda_is_running_in> |
+   | FifoQueue | <Your_FIFO_Queue_Name>.fifo |
+   | LogLevel | [<java.util.logging.Level>](https://docs.oracle.com/javase/7/docs/api/java/util/logging/Level.html) |
+   | SaveMessages | <true_or_false> |
+   | USInsightsEndpoint | insights-collector.newrelic.com |
+1. Tags
+   - none required, as desired
+1. Basic settings
+
+   |      |      |
+   | :--- | :--- |
+   | Description | - |
+   | Runtime | <Java_runtime_version>
+   | HandlerInfo | com.nr.logging.mparticle.MessageProcessor::handleRequest |
+   | Memory (MB) | 512 |
+   | Timeout | 3min0sec |
+
+1. Monitoring tools
+   - none required, as desired
+   
+1. VPC
+   - none required, as needed
+   
+1. File system
+   - none required
+   
+1. Concurrency
+   - none required, as needed
+
+1. Asynchronous invocation
+
+   |      |      |
+   | :--- | :--- |
+   | Maximum age of event | 6h0min0sec |
+   | Retry attempts | 2 |
+   | Dead-letter queue service | none |
+  
+#### Permissions
+1. Execution role
+
+   At a minimum:
+   - AmazonSQSFullAccess
+   - AWSLambdaFullAccess
+   - AmazonS3FullAccess 
+
+
+### [mParticle Deployment](https://docs.mparticle.com/developers/partners/firehose/#deployment)
 
 ## Getting Started
-
->[Simple steps to start working with the software similar to a "Hello World"]
-
-## Usage
-
->[**Optional** - Include more thorough instructions on how to use the software. This section might not be needed if the Getting Started section is enough. Remove this section if it's not needed.]
-
-## Building
-
->[**Optional** - Include this section if users will need to follow specific instructions to build the software from source. Be sure to include any third party build dependencies that need to be installed separately. Remove this section if it's not needed.]
-
-## Testing
-
->[**Optional** - Include instructions on how to run tests if we include tests with the codebase. Remove this section if it's not needed.]
+### mParticle configuration (via the mParticle UI)
+- accountRegion
+- insightsInsertKey
+- rpmId
+- appId
 
 ## Support
 
 New Relic has open-sourced this project. This project is provided AS-IS WITHOUT WARRANTY OR DEDICATED SUPPORT. Issues and contributions should be reported to the project here on GitHub.
 
->[Choose 1 of the 2 options below for Support details, and remove the other one.]
-
->[Option 1 - no specific thread in Community]
->We encourage you to bring your experiences and questions to the [Explorers Hub](https://discuss.newrelic.com) where our community members collaborate on solutions and new ideas.
-
->[Option 2 - thread in Community]
->New Relic hosts and moderates an online forum where customers can interact with New Relic employees as well as other customers to get help and share best practices. Like all official New Relic open source projects, there's a related Community topic in the New Relic Explorers Hub.
->You can find this project's topic/threads here: [URL for Community thread]
+We encourage you to bring your experiences and questions to the [Explorers Hub](https://discuss.newrelic.com) where our community members collaborate on solutions and new ideas.
 
 ## Contributing
 
@@ -49,6 +160,6 @@ If you believe you have found a security vulnerability in this project or any of
 
 ## License
 
-[Project Name] is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
+`newrelic-mparticle-integration` is licensed under the [Apache 2.0](http://apache.org/licenses/LICENSE-2.0.txt) License.
 
->[If applicable: [Project Name] also uses source code from third-party libraries. You can find full details on which libraries are used and the terms under which they are licensed in the third-party notices document.]
+`newrelic-mparticle-integration` also uses source code from third-party libraries. You can find full details on which libraries are used and the terms under which they are licensed in the [third party notices](./THIRD_PARTY_NOTICES.html) document.
