@@ -142,6 +142,8 @@ Create an SQS FIFO queue
 - rpmId
 - appId
 
+## Building
+To generate the 3rd party notices file use  `gradle downloadLicenses` and use one of the resulting files in `build/reports/license/`
 ## Support
 
 New Relic has open-sourced this project. This project is provided AS-IS WITHOUT WARRANTY OR DEDICATED SUPPORT. Issues and contributions should be reported to the project here on GitHub.
