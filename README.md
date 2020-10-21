@@ -15,7 +15,7 @@ NOTE:
 ### FIFO Queue
 Create an SQS FIFO queue
 
-### AWS Lambda
+### LogStreamHandler (Lambda)
 1. Create a new Java Lambda
 #### Configuration
 1. Upload mParticleIntegration.jar
@@ -73,7 +73,7 @@ Create an SQS FIFO queue
    
 1. [Grant mParticle permission on the Lambda](https://docs.mparticle.com/developers/partners/firehose/#step-1-aws-lambda---grant-permissions)
 
-### AWS SQS Listener (Lambda)
+### MessageProcessor (SQS Listener Lambda)
 1. Create a new AWS Java Lambda
 
 #### Configuration
