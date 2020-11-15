@@ -3,8 +3,8 @@ plugins {
 }
 
 apply plugin: 'java'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 repositories {
     mavenCentral()
@@ -15,11 +15,11 @@ dependencies {
     implementation 'com.github.hierynomus:license-gradle-plugin:master-SNAPSHOT'
     compile (
            'javax.xml.bind:jaxb-api:2.3.1',
-            'com.amazonaws:aws-lambda-java-core:1.2.0',
-            'com.amazonaws:aws-lambda-java-events:2.2.7',
+            'com.amazonaws:aws-lambda-java-core:1.2.1',
+            'com.amazonaws:aws-lambda-java-events:3.6.0',
             'com.mparticle:java-sdk:+',
             'com.github.wnameless.json:json-flattener:0.8.1',
-           'com.amazonaws:aws-java-sdk-bom:1.11.726',
+           'com.amazonaws:aws-java-sdk-bom:1.11.901',
            'com.amazonaws:aws-java-sdk-s3:+',
            'com.amazonaws:aws-java-sdk-sqs:+'
     )
