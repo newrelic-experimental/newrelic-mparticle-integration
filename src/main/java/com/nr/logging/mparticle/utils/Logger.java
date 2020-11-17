@@ -107,7 +107,7 @@ public class Logger {
 		else
 			System.out.println(String.format(("[%s] %s: %s %s"), level, klass, message, t.getMessage()));
 
-		if (level.intValue() >= Level.SEVERE.intValue())
-			t.printStackTrace();
+//		if (level.intValue() >= Level.SEVERE.intValue())
+//			t.printStackTrace();
 	}
 }

@@ -24,7 +24,7 @@ public class Config {
 	public static final String LogLevel = "LogLevel";
 	public static final String SaveMessages = "SaveMessages";
 	public static final String USInsightsEndpoint = "USInsightsEndpoint";
-	public static final String FifoQueue = "FifoQueue";
+	public static final String MessageQueue = "MessageQueue";
 	private static Map<String, Object> config = new HashMap<>();
 	private static Map<String, String> parser = new HashMap<>();
 	private static String pid;
@@ -44,7 +44,7 @@ public class Config {
 				"new-relic-mparticle-integration-events");
 		config.put(EventBucketPrefix,
 				"");
-		config.put(FifoQueue, "mParticle.fifo");
+		config.put(MessageQueue, "mParticle");
 
 		config.put(SaveMessages,
 				false);

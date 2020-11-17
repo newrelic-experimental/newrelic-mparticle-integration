@@ -6,6 +6,8 @@
  */
 package com.nr.logging.mparticle.utils;
 
+import com.nr.logging.mparticle.OverloadException;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,7 +33,7 @@ public class InsightsWriter {
 	/*
 	 * gzip -c example_events.json | curl -X POST -H "Content-Type: application/json" -H "X-Insert-Key: YOUR_KEY_HERE" -H "Content-Encoding: gzip" https://insights-collector.newrelic.com/v1/accounts/YOUR_ACCOUNT_ID/events --data-binary @-
 	 */
-	public StringBuffer post(String urlString, String apiKey, byte[] form) throws IOException {
+	public StringBuffer post(String urlString, String apiKey, byte[] form) throws IOException{
 		log.fine("post: url: %s insertKey: %s",
 				urlString,
 				apiKey);
@@ -59,17 +61,21 @@ public class InsightsWriter {
 		log.fine("postJson: response Code: %s",
 				responseCode);
 		if (responseCode >= 400) {
-			StringBuffer error = getConnectionStreamValue(connection.getErrorStream());
-			if (responseCode == 404)
-				log.severe("404");
-			log.severe(String.format("postJson: url: %s status: %s error: %s",
-					connection.getURL(),
-					responseCode,
-					error.toString()));
-			throw new IOException(String.format("url: %s status: %s error: %s",
-					connection.getURL(),
-					responseCode,
-					error.toString()));
+		    if(responseCode == 429){
+		        throw new OverloadException(connection.getHeaderFields());
+			}else {
+				StringBuffer error = getConnectionStreamValue(connection.getErrorStream());
+//			if (responseCode == 404)
+//				log.severe("404");
+//			log.severe(String.format("postJson: url: %s status: %s error: %s",
+//					connection.getURL(),
+//					responseCode,
+//					error.toString()));
+				throw new IOException(String.format("url: %s status: %s error: %s",
+						connection.getURL(),
+						responseCode,
+						error.toString()));
+			}
 		}
 
 		StringBuffer response = getConnectionStreamValue(connection.getInputStream());

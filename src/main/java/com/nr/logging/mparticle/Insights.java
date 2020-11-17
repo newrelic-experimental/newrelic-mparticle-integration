@@ -35,7 +35,7 @@ import com.nr.logging.mparticle.utils.Logger;
 import com.nr.logging.mparticle.utils.Strings;
 
 // Here we convert mParticle to Insights and ship it to the appropriate (US/EU) Insights Insert endpoint
-public class Insights implements Closeable {
+public class Insights implements Closeable{
 
 	private static InsightsWriter insightsWriter = new InsightsWriter();
 	private static Logger log = new Logger(Insights.class);
@@ -63,7 +63,7 @@ public class Insights implements Closeable {
 	private Integer rpmId;
 	private Map<String, Object> userIdentities;
 
-	public void close() {
+	public void close() throws IOException{
 		// Nothing to process
 		if (events.size() == 0)
 			return;
@@ -84,9 +84,6 @@ public class Insights implements Closeable {
 			log.fine("close: insightsWriter result: %s",
 					result.toString());
 		} catch (JsonProcessingException e) {
-			log.severe("close: ",
-					e);
-		} catch (IOException e) {
 			log.severe("close: ",
 					e);
 		} finally {

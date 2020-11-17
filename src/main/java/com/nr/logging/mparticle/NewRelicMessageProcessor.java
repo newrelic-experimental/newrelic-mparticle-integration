@@ -269,7 +269,7 @@ public class NewRelicMessageProcessor extends MessageProcessor implements Closea
 		// super.processUserIdentityChangeEvent( event);
 	}
 
-	public void close() {
+	public void close() throws IOException {
 		insights.close();
 	}
 }

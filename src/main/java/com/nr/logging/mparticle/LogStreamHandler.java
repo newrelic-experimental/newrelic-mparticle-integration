@@ -20,6 +20,7 @@ import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.mparticle.sdk.model.Message;
 import com.mparticle.sdk.model.MessageSerializer;
 import com.nr.logging.mparticle.utils.Logger;
+import com.nr.logging.mparticle.utils.SQS;
 import com.nr.logging.mparticle.utils.Strings;
 
 import java.io.ByteArrayOutputStream;
@@ -32,14 +33,15 @@ public class LogStreamHandler implements RequestStreamHandler {
     private static final Logger log = new Logger(LogStreamHandler.class);
     private static final NewRelicMessageProcessor processor = new NewRelicMessageProcessor();
     private static final MessageSerializer serializer = new MessageSerializer();
-    private static final AmazonSQS sqsClient = AmazonSQSClientBuilder.defaultClient();
-    private static final String queueUrl = sqsClient.getQueueUrl((String) Config.getValue(Config.FifoQueue))
-            .getQueueUrl();
+//    private static final AmazonSQS sqsClient = AmazonSQSClientBuilder.defaultClient();
+//    private static final String queueUrl = sqsClient.getQueueUrl((String) Config.getValue(Config.FifoQueue))
+//            .getQueueUrl();
+//
+//    private static final SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(queueUrl)
+//            .withMessageGroupId("mParticle-message")
+//            .withDelaySeconds(0);
 
-    private static final SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(queueUrl)
-            .withMessageGroupId("mParticle-message")
-            .withDelaySeconds(0);
-
+    private final SQS sqs = new SQS(0);
     // Lambda entry point
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
@@ -75,12 +77,13 @@ public class LogStreamHandler implements RequestStreamHandler {
                 message = "-";
 
             t0 = System.currentTimeMillis();
-            sendMessageRequest.setMessageBody(message);
-            sendMessageRequest.setMessageDeduplicationId(Config.getPid() + System.currentTimeMillis());
-            log.fine("handleRequest: update sendMessageRequest: %d", System.currentTimeMillis() - t0);
-
-            t0 = System.currentTimeMillis();
-            SendMessageResult smr = sqsClient.sendMessage(sendMessageRequest);
+            sqs.sendMessage(message);
+//            sendMessageRequest.setMessageBody(message);
+//            sendMessageRequest.setMessageDeduplicationId(Config.getPid() + System.currentTimeMillis());
+//            log.fine("handleRequest: update sendMessageRequest: %d", System.currentTimeMillis() - t0);
+//
+//            t0 = System.currentTimeMillis();
+//            SendMessageResult smr = sqsClient.sendMessage(sendMessageRequest);
 
             log.fine("handleRequest: sendMessage: %d", System.currentTimeMillis() - t0);
             message = null;
