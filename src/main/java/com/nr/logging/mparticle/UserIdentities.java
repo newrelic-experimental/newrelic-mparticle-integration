@@ -6,13 +6,13 @@
  */
 package com.nr.logging.mparticle;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mparticle.sdk.model.eventprocessing.UserIdentity;
 
+import java.util.List;
+
 // JSON helper class
 public class UserIdentities {
-	@JsonProperty
-	List<UserIdentity> userIdentities;
+    @JsonProperty
+    List<UserIdentity> userIdentities;
 }

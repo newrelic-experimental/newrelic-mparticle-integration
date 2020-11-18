@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mparticle.sdk.model.eventprocessing.RuntimeEnvironment;
 
 // JSON helper class
-public class RuntimeEnv{
-@JsonProperty
-	RuntimeEnvironment runtimeEnvironment;
+public class RuntimeEnv {
+    @JsonProperty
+    RuntimeEnvironment runtimeEnvironment;
 }

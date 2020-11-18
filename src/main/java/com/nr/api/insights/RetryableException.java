@@ -1,4 +1,4 @@
-package com.nr.logging.mparticle;
+package com.nr.api.insights;
 
 import com.nr.logging.mparticle.utils.Logger;
 
@@ -6,17 +6,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class OverloadException extends IOException {
+public class RetryableException extends IOException {
     private static final Logger log = new Logger(OverloadException.class);
     private Map<String, List<String>> headers;
-
-    private OverloadException() {
+    private RetryableException() {
     }
 
-    public OverloadException(Map<String, List<String>> headerFields) {
+    public RetryableException(Map<String, List<String>> headerFields) {
         headers = headerFields;
     }
-
     private int getValue(String key) {
         int value = 0;
         if (headers.containsKey(key)) {

@@ -6,12 +6,12 @@
  */
 package com.nr.logging.mparticle;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Map;
 
 // JSON helper class
 public class UserAttributes {
-	@JsonProperty
-	Map<String, String> userAttributes;
+    @JsonProperty
+    Map<String, String> userAttributes;
 }

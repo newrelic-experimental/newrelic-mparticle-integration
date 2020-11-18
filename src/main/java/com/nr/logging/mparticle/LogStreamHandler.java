@@ -13,10 +13,6 @@ package com.nr.logging.mparticle;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.mparticle.sdk.model.Message;
 import com.mparticle.sdk.model.MessageSerializer;
 import com.nr.logging.mparticle.utils.Logger;
@@ -33,15 +29,9 @@ public class LogStreamHandler implements RequestStreamHandler {
     private static final Logger log = new Logger(LogStreamHandler.class);
     private static final NewRelicMessageProcessor processor = new NewRelicMessageProcessor();
     private static final MessageSerializer serializer = new MessageSerializer();
-//    private static final AmazonSQS sqsClient = AmazonSQSClientBuilder.defaultClient();
-//    private static final String queueUrl = sqsClient.getQueueUrl((String) Config.getValue(Config.FifoQueue))
-//            .getQueueUrl();
-//
-//    private static final SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(queueUrl)
-//            .withMessageGroupId("mParticle-message")
-//            .withDelaySeconds(0);
 
     private final SQS sqs = new SQS(0);
+
     // Lambda entry point
     @Override
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
@@ -60,11 +50,11 @@ public class LogStreamHandler implements RequestStreamHandler {
         result.close();
         inputStream.close();
 
-        log.fine("handleRequest: streamToString time: %d",
-                System.currentTimeMillis() - start);
+        log.fine("handleRequest: streamToString time: %d", System.currentTimeMillis() - start);
 
         // Handle a registration request
-        if (message.contains(Message.Type.MODULE_REGISTRATION_REQUEST.name()) || message.contains(Message.Type.MODULE_REGISTRATION_REQUEST.name().toLowerCase())) {
+        if (message.contains(Message.Type.MODULE_REGISTRATION_REQUEST.name()) || message.contains(Message.Type.MODULE_REGISTRATION_REQUEST.name()
+                .toLowerCase())) {
             Message request = serializer.deserialize(message, Message.class);
             Message response = processor.processMessage(request);
             serializer.serialize(outputStream, response);
@@ -73,18 +63,10 @@ public class LogStreamHandler implements RequestStreamHandler {
             // Due to the mParticle 200ms latency limit we have to take the Event and push it onto a queue
             long t0 = System.currentTimeMillis();
 
-            if (Strings.isNullOrEmpty(message))
-                message = "-";
+            if (Strings.isNullOrEmpty(message)) message = "-";
 
             t0 = System.currentTimeMillis();
             sqs.sendMessage(message);
-//            sendMessageRequest.setMessageBody(message);
-//            sendMessageRequest.setMessageDeduplicationId(Config.getPid() + System.currentTimeMillis());
-//            log.fine("handleRequest: update sendMessageRequest: %d", System.currentTimeMillis() - t0);
-//
-//            t0 = System.currentTimeMillis();
-//            SendMessageResult smr = sqsClient.sendMessage(sendMessageRequest);
-
             log.fine("handleRequest: sendMessage: %d", System.currentTimeMillis() - t0);
             message = null;
 
