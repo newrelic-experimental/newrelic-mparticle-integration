@@ -13,10 +13,12 @@ package com.nr.logging.mparticle;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.mparticle.sdk.model.Message;
 import com.mparticle.sdk.model.MessageSerializer;
 import com.nr.logging.mparticle.utils.Logger;
-import com.nr.logging.mparticle.utils.SQS;
 import com.nr.logging.mparticle.utils.Strings;
 
 import java.io.ByteArrayOutputStream;
@@ -29,8 +31,11 @@ public class LogStreamHandler implements RequestStreamHandler {
     private static final Logger log = new Logger(LogStreamHandler.class);
     private static final NewRelicMessageProcessor processor = new NewRelicMessageProcessor();
     private static final MessageSerializer serializer = new MessageSerializer();
-
-    private final SQS sqs = new SQS(0);
+    private static final AmazonSQS sqsClient = AmazonSQSClientBuilder.defaultClient();
+    private static final String queueUrl = sqsClient.getQueueUrl((String) Config.getValue(Config.MessageQueue))
+            .getQueueUrl();
+    private final SendMessageRequest sendMessageRequest = new SendMessageRequest().withQueueUrl(queueUrl)
+            .withDelaySeconds(0);
 
     // Lambda entry point
     @Override
@@ -62,16 +67,12 @@ public class LogStreamHandler implements RequestStreamHandler {
             // Process the exported data
             // Due to the mParticle 200ms latency limit we have to take the Event and push it onto a queue
             long t0 = System.currentTimeMillis();
-
             if (Strings.isNullOrEmpty(message)) message = "-";
-
-            t0 = System.currentTimeMillis();
-            sqs.sendMessage(message);
+            sendMessageRequest.setMessageBody(message);
+            sqsClient.sendMessage(sendMessageRequest);
             log.fine("handleRequest: sendMessage: %d", System.currentTimeMillis() - t0);
-            message = null;
-
-            log.fine("handleRequest: total time: %d", System.currentTimeMillis() - start);
         }
         outputStream.close();
+        log.fine("handleRequest: total time: %d", System.currentTimeMillis() - start);
     }
 }

@@ -40,7 +40,6 @@ public class SQS {
         t0 = System.currentTimeMillis();
         sqsClient.sendMessage(sendMessageRequest);
         log.fine("SQS.sendMessage: sendMessage: %d", System.currentTimeMillis() - t0);
-        body = null;
         // The delay is here, on the void return
     }
 }

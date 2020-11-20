@@ -38,6 +38,7 @@ public class MessageProcessor implements RequestHandler<SQSEvent, String> {
     private final AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
             .withCredentials(new EnvironmentVariableCredentialsProvider())
             .build();
+    private final static int ConnectionTimeoutBackoff = 5;
 
     @Override
     public String handleRequest(SQSEvent input, Context context) {
@@ -52,8 +53,15 @@ public class MessageProcessor implements RequestHandler<SQSEvent, String> {
                 sqs.sendMessage(message.getBody());
                 log.info("%s: retrying with backoff: %d", e, e.secondsUntilRetry());
             } catch (IOException e) {
-                writeMessageToS3(request);
-                log.severe("IOException: %s", e);
+                if(e.getMessage().toLowerCase().contains("connection timed out")){
+                    SQS sqs = new SQS(ConnectionTimeoutBackoff);
+                    sqs.sendMessage(message.getBody());
+                    log.info("IOException: ", e);
+                    log.info("%s: retrying with backoff: %d", e, ConnectionTimeoutBackoff);
+                }else {
+                    writeMessageToS3(request);
+                    log.severe("IOException: ", e);
+                }
             } catch (Exception e) {
                 writeMessageToS3(request);
                 log.severe("handleRequest: ", e);
