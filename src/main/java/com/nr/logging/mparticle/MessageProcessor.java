@@ -30,9 +30,9 @@ import java.io.InputStream;
 
 // Superclass for NewRelicMessageProcessor, handles SQS Messages.
 public class MessageProcessor implements RequestHandler<SQSEvent, String> {
-    private static final AmazonSQS sqsClient = AmazonSQSClientBuilder.defaultClient();
-    private static final String queueUrl = sqsClient.getQueueUrl((String) Config.getValue(Config.MessageQueue))
-            .getQueueUrl();
+//    private static final AmazonSQS sqsClient = AmazonSQSClientBuilder.defaultClient();
+//    private static final String queueUrl = sqsClient.getQueueUrl((String) Config.getValue(Config.MessageQueue))
+//            .getQueueUrl();
     private final MessageSerializer serializer = new MessageSerializer();
     private final Logger log = new Logger(this.getClass());
     private final AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
@@ -42,6 +42,7 @@ public class MessageProcessor implements RequestHandler<SQSEvent, String> {
 
     @Override
     public String handleRequest(SQSEvent input, Context context) {
+        log.fine("SQS record count: %d", input.getRecords().size());
         for (SQSMessage message : input.getRecords()) {
             Message request = null;
             try (NewRelicMessageProcessor processor = new NewRelicMessageProcessor()) {
@@ -51,13 +52,13 @@ public class MessageProcessor implements RequestHandler<SQSEvent, String> {
             } catch (RetryableException e) {
                 SQS sqs = new SQS(e.secondsUntilRetry());
                 sqs.sendMessage(message.getBody());
-                log.info("%s: retrying with backoff: %d", e, e.secondsUntilRetry());
+                log.fine("%s: retrying with backoff: %d", e, e.secondsUntilRetry());
             } catch (IOException e) {
                 if(e.getMessage().toLowerCase().contains("connection timed out")){
                     SQS sqs = new SQS(ConnectionTimeoutBackoff);
                     sqs.sendMessage(message.getBody());
-                    log.info("IOException: ", e);
-                    log.info("%s: retrying with backoff: %d", e, ConnectionTimeoutBackoff);
+                    log.fine("IOException: ", e);
+                    log.fine("%s: retrying with backoff: %d", e, ConnectionTimeoutBackoff);
                 }else {
                     writeMessageToS3(request);
                     log.severe("IOException: ", e);

@@ -117,6 +117,7 @@ public class Insights implements Closeable {
 
     public void close() throws IOException {
         // Nothing to process
+        log.fine("Insights Event count: %d", events.size());
         if (events.size() == 0) return;
 
         try {
