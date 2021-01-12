@@ -54,7 +54,8 @@ public class MessageProcessor implements RequestHandler<SQSEvent, String> {
                 sqs.sendMessage(message.getBody());
                 log.fine("%s: retrying with backoff: %d", e, e.secondsUntilRetry());
             } catch (IOException e) {
-                if(e.getMessage().toLowerCase().contains("connection timed out")){
+                String msg = e.getMessage();
+                if(msg != null && msg.toLowerCase().contains("connection timed out")){
                     SQS sqs = new SQS(ConnectionTimeoutBackoff);
                     sqs.sendMessage(message.getBody());
                     log.fine("IOException: ", e);

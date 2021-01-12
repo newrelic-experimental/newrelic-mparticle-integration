@@ -13,7 +13,7 @@ repositories {
 
 dependencies {
     implementation 'com.github.hierynomus:license-gradle-plugin:master-SNAPSHOT'
-    compile (
+    implementation (
            'javax.xml.bind:jaxb-api:2.3.1',
             'com.amazonaws:aws-lambda-java-core:1.2.1',
             'com.amazonaws:aws-lambda-java-events:3.6.0',
@@ -26,10 +26,10 @@ dependencies {
 
     // JUnit 5 dependencies for public test-writing API, and test engine, respectively.
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.1')
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.5.1')
+    testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.5.1')
 
     // Mockito for test mocking
-    testCompile('org.mockito:mockito-core:2.1.0')
+    testImplementation('org.mockito:mockito-core:2.1.0')
 }
 
 test {
@@ -42,7 +42,7 @@ task buildZip(type: Zip) {
     from compileJava
     from processResources
     into('lib') {
-        from configurations.runtime
+        from configurations.runtimeClasspath
     }
 }
 

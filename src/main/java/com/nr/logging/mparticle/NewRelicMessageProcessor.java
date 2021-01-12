@@ -54,6 +54,7 @@ public class NewRelicMessageProcessor extends MessageProcessor implements Closea
 
     @Override
     public void processErrorEvent(ErrorEvent event) throws IOException {
+        insights.mParticleToInsights(event);
     }
 
     /**
