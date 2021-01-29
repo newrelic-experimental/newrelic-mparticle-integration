@@ -1,6 +1,6 @@
 [![New Relic Experimental header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#new-relic-experimental)
 
-# newrelic-mparticle-integration
+# New Relic integration for mParticle
 
 [AWS Lambda outbound mParticle integration to New Relic.](https://docs.mparticle.com/developers/partners/outbound-integrations/#aws-lambda-integrations)
 
